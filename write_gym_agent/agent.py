@@ -1,3 +1,4 @@
+from pathlib import Path
 import types
 from google.adk.agents import Agent
 from google.genai import types
@@ -7,23 +8,31 @@ from .specialized_agents.write_gym_workflow import write_gym_workflow
 from google.adk.models.google_llm import Gemini
 from configs.retry_config import retry_config
 
+from google.adk.agents import Agent
+from google.adk.tools import AgentTool
+from google.adk.models.google_llm import Gemini
 
+
+APP_NAME = "Write Gym"  # Application
+write_gym = AgentTool(agent=write_gym_workflow)
 root_agent = Agent(
     model=Gemini(model="gemini-2.5-flash-lite", retry_options=retry_config),
     name="write_gym",
-    sub_agents=[write_gym_workflow],
+    tools=[write_gym],
     description="Orchestrates the complete Write-Gym system.",
     instruction="""
 
 You are the main orchestrator for a "Write Gym" writing-mentor system.
 
-Step 1: USER SUBMITS TEXT
+Step 1: USER SUBMITS TEXT TO analyze
 When a user provides text to analyze:
-Pass the user_input to the write_gym_workflow subagent.
+Pass the user_input to the write_gym_workflow tool.
+
 
 Step 2: Output
 Wait for the write_gym_workflow subagent to finish. Capture its output.
-Show user the output of the write_gym_workflow subagent.
+Return challenges from the the write_gym_workflow tool.
+IMPORTANT: RESPOND ONLY WITH CHALLENGES.
+
 """,
 )
-
