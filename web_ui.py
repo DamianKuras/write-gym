@@ -10,6 +10,9 @@ from google.genai import types  # for Content & Part
 from write_gym_agent.agent import root_agent
 from dotenv import load_dotenv
 from google.adk.memory import InMemoryMemoryService
+from google.adk.plugins.logging_plugin import (
+    LoggingPlugin,
+)
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -26,6 +29,7 @@ runner = Runner(
     app_name=APP_NAME,
     session_service=session_service,
     memory_service=memory_service,
+    plugins=[LoggingPlugin()],
 )
 
 USER_ID = "web_user"
