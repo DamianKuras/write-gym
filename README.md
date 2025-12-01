@@ -31,8 +31,8 @@
 
 ### Prerequisites
 
-- A valid Google ADK key
-- Conda or Miniconda installed
+- A valid Google AI Studio API key.
+- Conda or Miniconda installed.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -55,8 +55,8 @@ conda activate write-gym-env
 
 #### Api keys
 
-Rename the .env.example in /agent folder to .env first.
-Then set up the google adk key in /agent/.env file.
+1. Copy `.env.example` to create a new file named `.env`.
+2. Open the `.env` file and add your Google AI Studio API key.
 
 #### Running the App (Web UI)
 
