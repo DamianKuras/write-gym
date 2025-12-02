@@ -2,7 +2,7 @@ import textstat
 from google.adk.agents import LlmAgent
 from google.genai import types
 from google.adk.models.google_llm import Gemini
-from configs.retry_config import retry_config
+from ..configs.retry_config import retry_config
 
 
 def analyze_readability_tool(text: str) -> dict:
@@ -120,3 +120,5 @@ After this create a report with:
     ),
     output_key="readability_analysis",
 )
+
+agent = readability_agent

@@ -3,7 +3,7 @@ from google.adk.tools import google_search
 from google.genai import types
 from google.adk.models.google_llm import Gemini
 
-from configs.retry_config import retry_config
+from ..configs.retry_config import retry_config
 
 
 originality_check_agent = LlmAgent(

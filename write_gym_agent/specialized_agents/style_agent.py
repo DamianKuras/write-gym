@@ -4,7 +4,8 @@ from google.adk.agents import LlmAgent
 from google.genai import types
 from google.adk.models.google_llm import Gemini
 
-from configs.retry_config import retry_config
+from ..configs.retry_config import retry_config
+
 
 style_agent = LlmAgent(
     model=Gemini(model="gemini-2.5-flash-lite", retry_options=retry_config),

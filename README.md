@@ -66,6 +66,14 @@ python web_ui.py
 
 Open the URL shown (e.g. http://localhost:7860) to access the interface.
 
+#### Running Tests for agent
+
+You need to have pytest installed.
+
+```bash
+pytest write_gym_agent/test_agent_eval.py
+```
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Usage

@@ -3,7 +3,7 @@ from google.adk.agents import Agent
 from google.genai import types as genai_types
 from google.adk.models.google_llm import Gemini
 
-from configs.retry_config import retry_config
+from ..configs.retry_config import retry_config
 
 
 feedback_aggregator_agent = Agent(

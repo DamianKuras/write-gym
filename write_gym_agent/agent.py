@@ -6,16 +6,21 @@ from google.genai import types
 
 from .specialized_agents.write_gym_workflow import write_gym_workflow
 from google.adk.models.google_llm import Gemini
-from configs.retry_config import retry_config
+from .configs.retry_config import retry_config
 
 from google.adk.agents import Agent
 from google.adk.tools import AgentTool
 from google.adk.models.google_llm import Gemini
 
 
-APP_NAME = "Write Gym"  # Application
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+APP_NAME = "Write Gym"
 write_gym = AgentTool(agent=write_gym_workflow)
-root_agent = Agent(
+agent = Agent(
     model=Gemini(model="gemini-2.5-flash-lite", retry_options=retry_config),
     name="write_gym",
     tools=[write_gym],
@@ -36,3 +41,5 @@ IMPORTANT: RESPOND ONLY WITH CHALLENGES.
 
 """,
 )
+
+root_agent = agent
