@@ -88,43 +88,92 @@ async def process_text(text_input, audience_description):
     return "\n".join(output) if output else "No output generated."
 
 
+async def generate_daily_lesson():
+    output = []
+    content = types.Content(
+        role="user", parts=[types.Part(text="Generate daily writing lesson")]
+    )
+
+    try:
+        async for event in runner.run_async(
+            user_id=USER_ID,
+            session_id=SESSION_ID,
+            new_message=content,
+        ):
+            if getattr(event, "content", None) and event.content.parts:
+                text = "".join(
+                    [
+                        part.text
+                        for part in event.content.parts
+                        if getattr(part, "text", None)
+                    ]
+                )
+                output.append(text)
+    except Exception as e:
+        logging.exception(e)
+        return f"An error occurred generating your lesson: {e}"
+    return "\n".join(output)
+
+
 def create_ui():
     with gr.Blocks(
         title="Write Gym - Writing Mentor",
     ) as demo:
         with gr.Row():
             with gr.Column(scale=1):
-                gr.Markdown("### Write Gym Menu")
+                pass
             with gr.Column(scale=3):
-                gr.Markdown("# ✍️ Write Gym - Your Writing Mentor")
+                with gr.Tabs():
+                    with gr.Tab("📝 Analyze My Writing"):
+                        gr.Markdown(
+                            "### Get Feedback on Your Writing\n"
+                            "Submit your text and receive personalized feedback from our AI writing mentor."
+                        )
+                        text_input = gr.Textbox(
+                            label="Your Text to analyze",
+                            placeholder="Paste your writing here...",
+                            lines=10,
+                        )
 
-                text_input = gr.Textbox(
-                    label="Your Text to analyze",
-                    placeholder="Paste your writing here...",
-                    lines=10,
-                )
+                        audience_description_input = gr.Textbox(
+                            label="Your target audience of your text to analyze, you might leave this empty to get automatic target audience detection.",
+                            placeholder="This text is for general audience.",
+                            lines=2,
+                        )
+                        submit_btn = gr.Button("Analyze", variant="primary")
+                        with gr.Row():
 
-                audience_description_input = gr.Textbox(
-                    label="Your target audience of your text to analyze, you might leave this empty to get automatic target audience detection.",
-                    placeholder="This text is for general audience.",
-                    lines=2,
-                )
-                submit_btn = gr.Button("Analyze", variant="primary")
-                with gr.Row():
+                            output = gr.Markdown(
+                                label="Feedback",
+                                value="Your challenges will appear here...",
+                                min_height=200,
+                                padding=20,
+                                container=True,
+                            )
+                            submit_btn.click(
+                                fn=process_text,
+                                inputs=[text_input, audience_description_input],
+                                outputs=output,
+                                show_progress="full",
+                            )
+                    with gr.Tab("🎓 Daily Writing Lesson"):
+                        gr.Markdown("### Your Personalized Daily Writing Lesson\n")
 
-                    output = gr.Markdown(
-                        label="Feedback",
-                        value="Your challenges will appear here...",
-                        min_height=200,
-                        padding=20,
-                        container=True,
-                    )
-                    submit_btn.click(
-                        fn=process_text,
-                        inputs=[text_input, audience_description_input],
-                        outputs=output,
-                        show_progress="full",
-                    )
+                        generate_btn = gr.Button(
+                            "Generate My Daily Lesson", variant="primary", size="lg"
+                        )
+
+                        lesson_output = gr.Markdown(
+                            label="Your Daily Lesson",
+                            value="Your personalized lesson will appear here...",
+                            min_height=400,
+                        )
+
+                        generate_btn.click(
+                            fn=generate_daily_lesson,
+                            outputs=lesson_output,
+                            show_progress="full",
+                        )
             with gr.Column(scale=1):
                 pass
 
