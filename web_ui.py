@@ -6,7 +6,7 @@ from pathlib import Path
 
 from google.adk.sessions import DatabaseSessionService
 from google.adk.runners import Runner
-from google.genai import types  # for Content & Part
+from google.genai import types
 from write_gym_agent.agent import root_agent
 from dotenv import load_dotenv
 from google.adk.memory import InMemoryMemoryService
@@ -16,6 +16,7 @@ from google.adk.plugins.logging_plugin import (
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
+
 
 APP_NAME = "Write Gym"
 db_dir = Path("data")
@@ -48,19 +49,24 @@ async def maybe_create_session():
         logging.warning(f"Could not create session (maybe already exists): {e}")
 
 
-async def process_text(user_input: str):
-    if not user_input.strip():
+async def process_text(text_input, audience_description):
+    if not text_input.strip():
         return "Please enter some text."
 
-    logging.info(f"Processing: {user_input[:50]}...")
+    logging.info(f"Processing: {text_input[:50]}...")
 
     # Make sure session exists (create if needed)
     await maybe_create_session()
 
-    # Build the content object for the message
-    content = types.Content(role="user", parts=[types.Part(text=user_input)])
+    message_text = f"""TEXT TO ANALYZE:
+    {text_input}
 
+    AUDIENCE DESCRIPTION:
+    {audience_description if audience_description.strip() else "Not specified"}"""
+
+    # Build the content object for the message
     output = []
+    content = types.Content(role="user", parts=[types.Part(text=message_text)])
     try:
         async for event in runner.run_async(
             user_id=USER_ID, session_id=SESSION_ID, new_message=content
@@ -83,23 +89,44 @@ async def process_text(user_input: str):
 
 
 def create_ui():
-    with gr.Blocks(title="Write Gym - Writing Mentor") as demo:
-        gr.Markdown("# ✍️ Write Gym - Your Writing Mentor")
-        gr.Markdown("Paste your text below for AI-powered writing feedback")
-
+    with gr.Blocks(
+        title="Write Gym - Writing Mentor",
+    ) as demo:
         with gr.Row():
-            with gr.Column():
+            with gr.Column(scale=1):
+                gr.Markdown("### Write Gym Menu")
+            with gr.Column(scale=3):
+                gr.Markdown("# ✍️ Write Gym - Your Writing Mentor")
+
                 text_input = gr.Textbox(
-                    label="Your Text",
+                    label="Your Text to analyze",
                     placeholder="Paste your writing here...",
                     lines=10,
                 )
+
+                audience_description_input = gr.Textbox(
+                    label="Your target audience of your text to analyze, you might leave this empty to get automatic target audience detection.",
+                    placeholder="This text is for general audience.",
+                    lines=2,
+                )
                 submit_btn = gr.Button("Analyze", variant="primary")
+                with gr.Row():
 
-            with gr.Column():
-                output = gr.Textbox(label="Feedback", lines=10, interactive=False)
-
-        submit_btn.click(fn=process_text, inputs=text_input, outputs=output)
+                    output = gr.Markdown(
+                        label="Feedback",
+                        value="Your challenges will appear here...",
+                        min_height=200,
+                        padding=20,
+                        container=True,
+                    )
+                    submit_btn.click(
+                        fn=process_text,
+                        inputs=[text_input, audience_description_input],
+                        outputs=output,
+                        show_progress="full",
+                    )
+            with gr.Column(scale=1):
+                pass
 
     return demo
 
@@ -107,4 +134,6 @@ def create_ui():
 if __name__ == "__main__":
     demo = create_ui()
     demo.queue()
-    demo.launch(share=False)
+    demo.launch(
+        share=False,
+    )
